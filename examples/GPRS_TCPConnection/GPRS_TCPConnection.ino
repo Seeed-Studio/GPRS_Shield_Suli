@@ -6,7 +6,9 @@
 
 #define PIN_TX    7
 #define PIN_RX    8
-#define BAUDRATE  19200
+//make sure that the baud rate of SIM900 is 9600!
+//you can use the AT Command(AT+IPR=9600) to set it through SerialDebug
+#define BAUDRATE  9600
 
 char http_cmd[] = "GET /media/uploads/mbed_official/hello.txt HTTP/1.0\r\n\r\n";
 char buffer[512];

@@ -15,7 +15,7 @@ by lawliet.zou(lawliet.zou@gmail.com)
 
 #define PIN_TX    7
 #define PIN_RX    8
-#define BAUDRATE  19200
+#define BAUDRATE  9600
 
 char gprsBuffer[64];
 int i = 0;
