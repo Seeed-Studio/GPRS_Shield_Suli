@@ -20,7 +20,7 @@ GPRS Shield provide you a way to DIY your own **mobile phone**. You can use your
 + TCP Connection Test 
 
 ### Getting Started
-Make sure that three libraries ([GPRS_Shield_Suli](http://goo.gl/U2I1d2) —— GPRS Module Library, [SoftwareSerial](https://github.com/arduino/Arduino/tree/master/libraries/SoftwareSerial) —— we use software serial to communicate with GPRS module, [Suli_Arduino](https://github.com/Seeed-Studio/Suli)—— the Seeed Unified Libray interface) have been in your libraries folder. Then you can have a test with the sketches in example folder.
+Make sure that three libraries ([GPRS_Shield_Suli](https://github.com/Seeed-Studio/GPRS_Shield_Suli) —— GPRS Module Library, [SoftwareSerial](https://github.com/arduino/Arduino/tree/master/libraries/SoftwareSerial) —— we use software serial to communicate with GPRS module, [Suli_Arduino](https://github.com/Seeed-Studio/Suli)—— the Seeed Unified Libray interface) have been in your libraries folder. Then you can have a test with the sketches in example folder.
 + GPRS_Serial_Debug —— test GPRS module with AT commands.
 + GPRS_CallUp ——  give a call to someone.
 + GPRS_SendSMS —— send a message to someone.
