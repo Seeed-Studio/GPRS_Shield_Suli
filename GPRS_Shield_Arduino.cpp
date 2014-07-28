@@ -1,32 +1,33 @@
 /*
-* gprs.cpp 
-* A library for SeeedStudio seeeduino GPRS shield 
-*  
-* Copyright (c) 2013 seeed technology inc. 
-* Author      	: 	lawliet.zou(lawliet.zou@gmail.com)
-* Create Time	: 	Dec 23, 2013 
-* Change Log 	: 	
-*
-* The MIT License (MIT)
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
+ * GPRS_Shield_Arduino.cpp
+ * A library for SeeedStudio seeeduino GPRS shield 
+ *  
+ * Copyright (c) 2014 seeed technology inc.
+ * Website    : www.seeed.cc
+ * Author     : lawliet zou
+ * Create Time: April 2014
+ * Change Log :
+ *
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 #include <stdio.h>
 #include "GPRS_Shield_Arduino.h"
@@ -40,23 +41,23 @@ GPRS::GPRS(PIN_T tx, PIN_T rx, uint32_t baudRate, const char* apn, const char* u
     _apn = apn;
     _userName = userName;
     _passWord = passWord;
-	sim900_init(&gprsSerial, -1, baudRate);
+    sim900_init(&gprsSerial, -1, baudRate);
 }
 
 int GPRS::init(void)
 {
-	if(0 != sim900_check_with_cmd("AT\r\n","OK",DEFAULT_TIMEOUT,CMD)){
-		return -1;
-	}
-	
-	if(0 != sim900_check_with_cmd("AT+CFUN=1\r\n","OK",DEFAULT_TIMEOUT,CMD)){
-		return -1;
-	}
-	
+    if(0 != sim900_check_with_cmd("AT\r\n","OK",DEFAULT_TIMEOUT,CMD)){
+        return -1;
+    }
+    
+    if(0 != sim900_check_with_cmd("AT+CFUN=1\r\n","OK",DEFAULT_TIMEOUT,CMD)){
+        return -1;
+    }
+    
     if(0 != checkSIMStatus()) {
         return -1;
     }
-	
+    
     return 0;
 }
 
@@ -84,7 +85,7 @@ int GPRS::checkSIMStatus(void)
 
 int GPRS::sendSMS(char *number, char *data)
 {
-	char cmd[32];
+    char cmd[32];
     if(0 != sim900_check_with_cmd("AT+CMGF=1\r\n", "OK", DEFAULT_TIMEOUT,CMD)) { // Set message mode to ASCII
         return -1;
     }
@@ -94,23 +95,23 @@ int GPRS::sendSMS(char *number, char *data)
         return -1;
     }
     suli_delay_ms(1000);
-	sim900_send_cmd(data);
+    sim900_send_cmd(data);
     suli_delay_ms(500);
-	sim900_send_End_Mark();
-	return 0;
+    sim900_send_End_Mark();
+    return 0;
 }
 
 int GPRS::readSMS(int messageIndex, char *message,int length)
 {
-	int i = 0;
+    int i = 0;
     char gprsBuffer[100];
-	char cmd[16];
+    char cmd[16];
     char *p,*s;
-	
-	sim900_check_with_cmd("AT+CMGF=1\r\n","OK",DEFAULT_TIMEOUT,CMD);
-	suli_delay_ms(1000);
-	sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
-	sim900_send_cmd(cmd);
+    
+    sim900_check_with_cmd("AT+CMGF=1\r\n","OK",DEFAULT_TIMEOUT,CMD);
+    suli_delay_ms(1000);
+    sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
+    sim900_send_cmd(cmd);
     sim900_clean_buffer(gprsBuffer,100);
     sim900_read_buffer(gprsBuffer,100,DEFAULT_TIMEOUT);
     if(NULL != ( s = strstr(gprsBuffer,"+CMGR"))){
@@ -122,7 +123,7 @@ int GPRS::readSMS(int messageIndex, char *message,int length)
             message[i] = '\0';
         }
     }
-    return 0;	
+    return 0;   
 }
 
 int GPRS::deleteSMS(int index)
@@ -135,13 +136,13 @@ int GPRS::deleteSMS(int index)
 
 int GPRS::callUp(char *number)
 {
-	char cmd[24];
+    char cmd[24];
     if(0 != sim900_check_with_cmd("AT+COLP=1\r\n","OK",DEFAULT_TIMEOUT,CMD)) {
         return -1;
     }
     suli_delay_ms(1000);
-	sprintf(cmd,"ATD%s;\r\n", number);
-	sim900_send_cmd(cmd);
+    sprintf(cmd,"ATD%s;\r\n", number);
+    sim900_send_cmd(cmd);
     return 0;
 }
 
@@ -251,7 +252,7 @@ int GPRS::readable(void)
 
 int GPRS::wait_readable(int wait_time)
 {
-	return sim900_wait_readable(wait_time);
+    return sim900_wait_readable(wait_time);
 }
 
 int GPRS::wait_writeable(int req_size)
@@ -301,6 +302,6 @@ uint32_t GPRS::str_to_ip(const char* str)
 
 char* GPRS::getIPAddress()
 {
-	snprintf(ip_string, sizeof(ip_string), "%d.%d.%d.%d", (_ip>>24)&0xff,(_ip>>16)&0xff,(_ip>>8)&0xff,_ip&0xff); 
-	return ip_string;
+    snprintf(ip_string, sizeof(ip_string), "%d.%d.%d.%d", (_ip>>24)&0xff,(_ip>>16)&0xff,(_ip>>8)&0xff,_ip&0xff); 
+    return ip_string;
 }
