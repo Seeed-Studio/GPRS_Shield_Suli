@@ -114,9 +114,9 @@ int GPRS::readSMS(int messageIndex, char *message,int length)
     sim900_send_cmd(cmd);
     sim900_clean_buffer(gprsBuffer,100);
     sim900_read_buffer(gprsBuffer,100,DEFAULT_TIMEOUT);
-    if(NULL != ( s = strstr(gprsBuffer,"+CMGR"))){
-        if(NULL != ( s = strstr(gprsBuffer,"+32"))){
-            p = s + 6;
+    if(NULL != ( s = strstr(gprsBuffer,"+CMGR:"))){
+        if(NULL != ( s = strstr(s,"\r\n"))){
+            p = s + 2;
             while((*p != '\r')&&(i < length-1)) {
                 message[i++] = *(p++);
             }
