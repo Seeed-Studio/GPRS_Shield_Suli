@@ -53,7 +53,7 @@ void loop() {
       Serial.println(phone);  
       Serial.print("Datetime: ");
       Serial.println(datetime);        
-      Serial.print("Recv Message: ");
+      Serial.print("Recieved Message: ");
       Serial.println(message);    
    }
 }
