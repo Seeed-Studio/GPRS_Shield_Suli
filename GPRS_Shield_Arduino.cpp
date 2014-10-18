@@ -101,6 +101,116 @@ int GPRS::sendSMS(char *number, char *data)
     return 0;
 }
 
+int GPRS::isSMSunread()
+{
+    char gprsBuffer[64];  //64 is enough to see +CMGL:
+    char *p,*s;
+    //List of all UNREAD SMS and DON'T change the SMS UNREAD STATUS
+    sim900_send_cmd("AT+CMGL=\"REC UNREAD\",1\r\n");
+    /*If you want to change SMS status to READ you will need to send:
+          AT+CMGL=\"REC UNREAD\"\r\n
+      This command will list all UNREAD SMS and change all of them to READ
+      
+     If there is not SMS, response is (26 chars)
+         AT+CMGL="REC UNREAD",1
+         OK
+     If there is SMS, response is like (>64 chars)
+         AT+CMGL="REC UNREAD",1
+         +CMGL: 9,"REC UNREAD","XXXXXXXXX","","14/10/16,21:40:08+08"
+         Here SMS text.
+         OK  
+         
+         or
+
+         AT+CMGL="REC UNREAD",1
+         +CMGL: 9,"REC UNREAD","XXXXXXXXX","","14/10/16,21:40:08+08"
+         Here SMS text.
+         +CMGL: 10,"REC UNREAD","YYYYYYYYY","","14/10/16,21:40:08+08"
+         Here second SMS        
+         OK           
+    */
+    sim900_clean_buffer(gprsBuffer,64);
+    sim900_read_buffer(gprsBuffer,64,DEFAULT_TIMEOUT); 
+    
+    if(NULL != ( s = strstr(gprsBuffer,"OK"))) {
+        //In 64 bytes "doesn't" fit whole +CMGL: response, if recieve only "OK"
+        //    means you don't have any UNREAD SMS
+        return 0;
+    } else {
+        if(NULL != ( s = strstr(gprsBuffer,"+CMGL:"))) {
+            //There is at least one UNREAD SMS, get index/position
+            p = strstr((char *)gprsBuffer,":");
+            if (p != NULL) {
+                //We are going to flush serial data until OK is recieved
+                sim900_wait_for_resp("OK", DEFAULT_TIMEOUT, CMD);
+                return atoi(p+1);
+            }
+        } else {
+            return 0; 
+        }
+    } 
+    return -1;
+}
+
+int GPRS::readSMS(int messageIndex, char *message, int length, char *phone, char *datetime)  
+{
+  /* Response is like:
+  AT+CMGR=2
+  
+  +CMGR: "REC READ","XXXXXXXXXXX","","14/10/09,17:30:17+08"
+  SMS text here
+  
+  So we need (more or lees), 80 chars plus expected message length in buffer. CAUTION FREE MEMORY
+  */
+    int i = 0;
+    char gprsBuffer[100 + length];
+    char cmd[16];
+    char *p,*p2,*s;
+    
+    sim900_check_with_cmd("AT+CMGF=1\r\n","OK",DEFAULT_TIMEOUT,CMD);
+    suli_delay_ms(1000);
+    sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
+    sim900_send_cmd(cmd);
+    sim900_clean_buffer(gprsBuffer,sizeof(gprsBuffer));
+    sim900_read_buffer(gprsBuffer,sizeof(gprsBuffer),DEFAULT_TIMEOUT);
+    
+    if(NULL != ( s = strstr(gprsBuffer,"+CMGR:"))){
+        // Extract phone number string
+        p = strstr(s,",");
+        p2 = p + 2; //We are in the first phone number character
+        p = strstr((char *)(p2), "\"");
+        if (NULL != p) {
+            i = 0;
+            while (p2 < p) {
+                phone[i++] = *(p2++);
+            }
+            phone[i] = '\0';            
+        }
+        // Extract date time string
+        p = strstr((char *)(p2),",");
+        p2 = p + 1; 
+        p = strstr((char *)(p2), ","); 
+        p2 = p + 2; //We are in the first date time character
+        p = strstr((char *)(p2), "\"");
+        if (NULL != p) {
+            i = 0;
+            while (p2 < p) {
+                datetime[i++] = *(p2++);
+            }
+            datetime[i] = '\0';
+        }        
+        if(NULL != ( s = strstr(s,"\r\n"))){
+            i = 0;
+            p = s + 2;
+            while((*p != '\r')&&(i < length-1)) {
+                message[i++] = *(p++);
+            }
+            message[i] = '\0';
+        }
+    }
+    return 0;    
+}
+
 int GPRS::readSMS(int messageIndex, char *message,int length)
 {
     int i = 0;
@@ -112,8 +222,8 @@ int GPRS::readSMS(int messageIndex, char *message,int length)
     suli_delay_ms(1000);
     sprintf(cmd,"AT+CMGR=%d\r\n",messageIndex);
     sim900_send_cmd(cmd);
-    sim900_clean_buffer(gprsBuffer,100);
-    sim900_read_buffer(gprsBuffer,100,DEFAULT_TIMEOUT);
+    sim900_clean_buffer(gprsBuffer,sizeof(gprsBuffer));
+    sim900_read_buffer(gprsBuffer,sizeof(gprsBuffer),DEFAULT_TIMEOUT);
     if(NULL != ( s = strstr(gprsBuffer,"+CMGR:"))){
         if(NULL != ( s = strstr(s,"\r\n"))){
             p = s + 2;
@@ -130,8 +240,13 @@ int GPRS::deleteSMS(int index)
 {
     char cmd[16];
     snprintf(cmd,sizeof(cmd),"AT+CMGD=%d\r\n",index);
-    sim900_send_cmd(cmd);
-    return 0;
+    //sim900_send_cmd(cmd);
+    //return 0;
+    // We have to wait OK response
+    if(0 != sim900_check_with_cmd(cmd,"OK",DEFAULT_TIMEOUT,CMD)) {
+        return -1;
+    }    
+    return 0;    
 }
 
 int GPRS::callUp(char *number)
