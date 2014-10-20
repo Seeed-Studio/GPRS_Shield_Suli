@@ -9,7 +9,7 @@
  * Change Log :
  *
  * The MIT License (MIT)
- *
+  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -75,6 +75,26 @@ public:
      *      -1 on error
      */
     int sendSMS(char* number, char* data);
+
+    /** Check if there is any UNREAD SMS: this function DOESN'T change the UNREAD status of the SMS
+     *  @returns
+     *      1..20 on success, position/index where SMS is stored, suitable for the function ReadSMS
+     *      -1 on error
+     *       0 - there is no SMS with specified status (UNREAD)
+     */
+    int isSMSunread();
+    
+    /** read SMS, phone and date if getting a SMS message. It changes SMS status to READ 
+     *  @param  messageIndex  SIM position to read
+     *  @param  message  buffer used to get SMS message
+     *  @param  length  length of message buffer
+     *  @param  phone  buffer used to get SMS's sender phone number
+     *  @param  datetime  buffer used to get SMS's send datetime
+     *  @returns
+     *      0 on success
+     *      -1 on error
+     */
+     int readSMS(int messageIndex, char *message, int length, char *phone, char *datetime); 
 
     /** read SMS if getting a SMS message
      *  @param  buffer  buffer that get from GPRS module(when getting a SMS, GPRS module will return a buffer array)
