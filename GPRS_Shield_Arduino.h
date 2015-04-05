@@ -65,7 +65,13 @@ public:
      *      -1 on error
      */
     int init(void);
-
+    
+    /** send AT Command to retrieve IMEI Unique Identifier from SIM900
+     * @param *imei imei returned from AT Command
+     * @returns imei
+     */
+    char getImei(void);
+    
     
     /** send text SMS
      *  @param  *number phone number which SMS will be send to
