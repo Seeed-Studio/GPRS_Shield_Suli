@@ -37,7 +37,8 @@
 /** GPRS class.
  *  used to realize GPRS communication
  */ 
-#define MESSAGE_LENGTH  20  //HACERR donde influye esto ?
+ 
+//NOT USED #define MESSAGE_LENGTH  20
  
 enum Protocol {
     CLOSED = 0,
@@ -52,10 +53,8 @@ public:
      *  @param number default phone number during mobile communication
      */
 	 
-//I think it is a best way, in order not to ask for APN information only to send SMS or CALLs. We will use FlashStringHelper to save MEMORY
 //    GPRS(int tx, int rx, uint32_t baudRate = 9600, const char* apn = NULL, const char* userName = NULL, const char *passWord = NULL);
-//    GPRS(int tx, int rx, uint32_t baudRate = 9600 , const __FlashStringHelper *apn = 0 , const __FlashStringHelper *userName = 0 , const __FlashStringHelper *passWord = 0 );
-    GPRS(int tx, int rx, uint32_t baudRate = 9600 ); //, const __FlashStringHelper *apn = 0 , const __FlashStringHelper *userName = 0 , const __FlashStringHelper *passWord = 0 );
+    GPRS(int tx, int rx, uint32_t baudRate = 9600 ); 
     
     /** get instance of GPRS class
      */
@@ -100,7 +99,7 @@ public:
      *      -1 on error
      *       0 - there is no SMS with specified status (UNREAD)
      */
-//could it be char ? there are a lot of functions with ints. Why ?
+
 	 char isSMSunread();
     
     /** read SMS, phone and date if getting a SMS message. It changes SMS status to READ 
@@ -186,7 +185,7 @@ public:
    /**  Connect the GPRS module to the network.
      *  @return true if connected, false otherwise
      */
-	 //Here is where we ask for APN configuration, with F() so we can save MEMORY
+	 
     bool join(const __FlashStringHelper *apn = 0, const __FlashStringHelper *userName = 0, const __FlashStringHelper *passWord = 0);
 
 
@@ -209,8 +208,7 @@ public:
      *  @returns true if successful
      */
     bool connect(Protocol ptl, const char * host, int port, int timeout = 2 * DEFAULT_TIMEOUT);
-	//Overload with F() macro to SAVE memory
-    bool connect(Protocol ptl, const __FlashStringHelper *host, const __FlashStringHelper *port, int timeout = 2 * DEFAULT_TIMEOUT);
+	bool connect(Protocol ptl, const __FlashStringHelper *host, const __FlashStringHelper *port, int timeout = 2 * DEFAULT_TIMEOUT);
 
 
     /** Reset the GPRS module
@@ -274,9 +272,6 @@ private:
     //const char* _apn;
     //const char* _userName;
     //const char* _passWord;
-    //const __FlashStringHelper *_apn;
-    //const __FlashStringHelper *_userName;
-    //const __FlashStringHelper *_passWord;
     uint32_t _ip;
     char ip_string[20];
 };
