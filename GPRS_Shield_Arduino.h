@@ -66,11 +66,11 @@ public:
      */
     int init(void);
     
-    /** send AT Command to retrieve IMEI Unique Identifier from SIM900
-     * @param *imei imei returned from AT Command
-     * @returns imei
+    /** get IMEI from Sim900 via AT Command
+     * @param *imei char string with imei number returned
+     * @ returns imei
      */
-    char getImei(void);
+     String getImei();
     
     
     /** send text SMS
