@@ -5,7 +5,7 @@
  * Copyright (c) 2014 seeed technology inc.
  * Website    : www.seeed.cc
  * Author     : lawliet zou
- * Create Time: April 2014
+ * Create Time: April 2015
  * Change Log :
  *
  * The MIT License (MIT)
@@ -37,7 +37,7 @@
 /** GPRS class.
  *  used to realize GPRS communication
  */ 
-#define MESSAGE_LENGTH  20
+#define MESSAGE_LENGTH  20  //HACERR donde influye esto ?
  
 enum Protocol {
     CLOSED = 0,
@@ -51,7 +51,11 @@ public:
     /** Create GPRS instance
      *  @param number default phone number during mobile communication
      */
-    GPRS(int tx, int rx, uint32_t baudRate = 9600, const char* apn = NULL, const char* userName = NULL, const char *passWord = NULL);
+	 
+//I think it is a best way, in order not to ask for APN information only to send SMS or CALLs. We will use FlashStringHelper to save MEMORY
+//    GPRS(int tx, int rx, uint32_t baudRate = 9600, const char* apn = NULL, const char* userName = NULL, const char *passWord = NULL);
+//    GPRS(int tx, int rx, uint32_t baudRate = 9600 , const __FlashStringHelper *apn = 0 , const __FlashStringHelper *userName = 0 , const __FlashStringHelper *passWord = 0 );
+    GPRS(int tx, int rx, uint32_t baudRate = 9600 ); //, const __FlashStringHelper *apn = 0 , const __FlashStringHelper *userName = 0 , const __FlashStringHelper *passWord = 0 );
     
     /** get instance of GPRS class
      */
@@ -60,13 +64,27 @@ public:
     };
     
     /** initialize GPRS module including SIM card check & signal strength
+     *  @return true if connected, false otherwise
+     */
+
+    int init(void);
+
+   
+    /** check if GPRS module is powered on or not
      *  @returns
      *      0 on success
      *      -1 on error
      */
-    int init(void);
+    int checkPowerUp(void);
 
     
+    /** power Up GPRS module (JP has to be soldered)
+     *  @param  pin pin 9 connected to JP jumper so we can power up and down through software
+     *  @returns
+     *      
+     */
+    void powerUpDown(byte pin);
+     
     /** send text SMS
      *  @param  *number phone number which SMS will be send to
      *  @param  *data   message that will be send to
@@ -82,7 +100,8 @@ public:
      *      -1 on error
      *       0 - there is no SMS with specified status (UNREAD)
      */
-    int isSMSunread();
+//could it be char ? there are a lot of functions with ints. Why ?
+	 char isSMSunread();
     
     /** read SMS, phone and date if getting a SMS message. It changes SMS status to READ 
      *  @param  messageIndex  SIM position to read
@@ -122,12 +141,44 @@ public:
      */
     int callUp(char* number);
 
-    /** auto answer if coming a call
+    /** Disable +CLIP notification when an incoming call is active, RING text is always shown. See isCallActive function
+     *  This is done in order no to overload serial outputCheck if there is a call active and get the phone number in that case
      *  @returns
      *      0 on success
      *      -1 on error
      */
+    int disableCLIPring(void);
+
+    /** Check if there is a call active and get the phone number in that case
+     *  @returns
+     *      0 on success
+     *      -1 on error
+     */
+    int isCallActive(char *number);
+
+    /** auto answer if coming a call
+     *  @returns
+     *      0 on success
+     *      -1 on error
+     */    
+
     int answer(void);
+    
+    /** hang up if coming a call
+     *  @returns
+     *      0 on success
+     *      -1 on error
+     */    
+    int hangup(void);    
+
+    /** get DateTime from SIM900 (see AT command: AT+CLTS=1) as string
+     *  @param
+     *  @returns
+     *      0 on success
+     *      -1 on error
+     */        
+    int getDateTime(char *buffer);
+    
 
 //////////////////////////////////////////////////////
 /// GPRS
@@ -135,7 +186,9 @@ public:
    /**  Connect the GPRS module to the network.
      *  @return true if connected, false otherwise
      */
-    bool join(void);
+	 //Here is where we ask for APN configuration, with F() so we can save MEMORY
+    bool join(const __FlashStringHelper *apn = 0, const __FlashStringHelper *userName = 0, const __FlashStringHelper *passWord = 0);
+
 
     /** Disconnect the GPRS module from the network
      *  @returns true if successful
@@ -155,7 +208,9 @@ public:
      *  @param timeout wait seconds till connected
      *  @returns true if successful
      */
-    bool connect(Protocol ptl, const char * host, int port, int timeout = DEFAULT_TIMEOUT);
+    bool connect(Protocol ptl, const char * host, int port, int timeout = 2 * DEFAULT_TIMEOUT);
+	//Overload with F() macro to SAVE memory
+    bool connect(Protocol ptl, const __FlashStringHelper *host, const __FlashStringHelper *port, int timeout = 2 * DEFAULT_TIMEOUT);
 
 
     /** Reset the GPRS module
@@ -215,9 +270,13 @@ private:
     SoftwareSerial gprsSerial;
     static GPRS* inst;
     PIN_T _powerPin;
-    const char* _apn;
-    const char* _userName;
-    const char* _passWord;
+	//Why GLOBAL variables? If we put them in JOIN function, is it not necessary
+    //const char* _apn;
+    //const char* _userName;
+    //const char* _passWord;
+    //const __FlashStringHelper *_apn;
+    //const __FlashStringHelper *_userName;
+    //const __FlashStringHelper *_passWord;
     uint32_t _ip;
     char ip_string[20];
 };
