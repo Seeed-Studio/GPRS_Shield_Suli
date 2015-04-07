@@ -49,8 +49,6 @@ int sim900_check_readable()
     return suli_uart_readable(serialSIM900,-1);
 }
 
-//Just in case, you need to used UNSIGNED LONG not to have problems after 51 days)
-//Also you need one variable less
 int sim900_wait_readable (int wait_time)
 {
     unsigned long timerStart; //,timerEnd;
@@ -74,9 +72,6 @@ void sim900_flush_serial()
     }
 }
 
-//Just in case, you need to used UNSIGNED LONG not to have problems after 51 days)
-//Also you need one variable less
-// CHANGE 1. Not to wait always full DEFAULT_TIMEOUT
 int sim900_read_buffer(char *buffer,int count, unsigned int timeout, unsigned int chartimeout)
 {
     int i = 0;
@@ -137,8 +132,6 @@ void sim900_clean_buffer(char *buffer, int count)
     for(int i=0; i < count; i++) {
         buffer[i] = '\0';
     }
-    //en una prueba para un buffer de 32 characteres, repetido 1000 veces, sim900_clean_buffer tarda 236 milisegundos, y 
-    //            memset(gprsBuffer,'\0',32);  tarda 107 milisegundos solo.
 }
 
 void sim900_send_cmd(const char* cmd)
@@ -146,7 +139,6 @@ void sim900_send_cmd(const char* cmd)
   suli_uart_send(serialSIM900, -1, (uint8_t*)cmd, strlen(cmd));
 }
 
-// New functions to use F()
 void sim900_send_cmd(const __FlashStringHelper* cmd)
 {
   int i = 0;
@@ -156,14 +148,12 @@ void sim900_send_cmd(const __FlashStringHelper* cmd)
   }
 }
 
-// New functions to use PROGMEM strings
 void sim900_send_cmd_P(const char* cmd)
 {
   while (pgm_read_byte(cmd) != 0x00)
     suli_uart_send_byte(serialSIM900, -1, pgm_read_byte(cmd++));  
 }
 
-// New functions to use CHARs
 void  sim900_send_char(const char c)
 {
   suli_uart_send_byte(serialSIM900, -1, c);
@@ -195,9 +185,6 @@ bool sim900_response_cmp(uint8_t* resp, unsigned int len, unsigned int timeout)
 }
 */
 
-//Just in case, you need to used UNSIGNED LONG not to have problems after 51 days)
-//Also you need one variable less
-// CHANGE 1. Not to wait always full DEFAULT_TIMEOUT
 int sim900_wait_for_resp(const char* resp, DataType type, unsigned int timeout, unsigned int chartimeout)
 {
     int len = strlen(resp);
@@ -234,7 +221,6 @@ void sim900_send_End_Mark(void)
     suli_uart_send_byte(serialSIM900,-1,(char)26);
 }
 
-// CHANGE 1. Not to wait always full DEFAULT_TIMEOUT
 int sim900_check_with_cmd(const char* cmd, const char *resp, DataType type, unsigned int timeout, unsigned int chartimeout)
 {
     sim900_send_cmd(cmd);
