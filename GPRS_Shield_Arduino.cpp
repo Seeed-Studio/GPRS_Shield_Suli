@@ -44,19 +44,8 @@ GPRS::GPRS(PIN_T tx, PIN_T rx, uint32_t baudRate, const char* apn, const char* u
     _passWord = passWord;
     sim900_init(&gprsSerial, -1, baudRate);
 }
-
-
-GPRS::GPRS(PIN_T tx, PIN_T rx, uint32_t baudRate, const __FlashStringHelper *apn, const __FlashStringHelper *userName, const __FlashStringHelper *passWord):gprsSerial(tx,rx)
-{
-    inst = this;
-    _apn = apn;
-    _userName = userName;
-    _passWord = passWord;
-    sim900_init(&gprsSerial, -1, baudRate);
-}
 */
 
-//I think it is a best way, in order not to ask for APN information only to send SMS or CALLs. We will use FlashStringHelper to save MEMORY
 GPRS::GPRS(PIN_T tx, PIN_T rx, uint32_t baudRate):gprsSerial(tx,rx)
 {
     inst = this;
@@ -183,11 +172,11 @@ char GPRS::isSMSunread()
         delay(50);
         return 0;
     } else {
-        //Tengo todavia mas buffer que leer
+        //More buffer to read
         //We are going to flush serial data until OK is recieved
         sim900_wait_for_resp("OK\r\n", CMD);        
         //sim900_flush_serial();
-        //Tenemos que volver a llamar al comando
+        //We have to call command again
         sim900_send_cmd("AT+CMGL=\"REC UNREAD\",1\r\n");
         sim900_clean_buffer(gprsBuffer,48); 
         sim900_read_buffer(gprsBuffer,47,DEFAULT_TIMEOUT);
@@ -322,7 +311,7 @@ int GPRS::callUp(char *number)
 
 int GPRS::answer(void)
 {
-    sim900_send_cmd("ATA\r\n");  //HACERR no devuelve OK ????
+    sim900_send_cmd("ATA\r\n");  //TO CHECK: ATA doesnt return "OK" ????
     return 0;
 }
 
@@ -363,7 +352,7 @@ int GPRS::isCallActive(char *number)
     */
 
     sim900_clean_buffer(gprsBuffer,29);
-    sim900_read_buffer(gprsBuffer,27);  //Pongo 27 para que no se tarde una eternidad
+    sim900_read_buffer(gprsBuffer,27);
     //HACERR cuando haga lo de esperar a OK no me haría falta esto
     //We are going to flush serial data until OK is recieved
     sim900_wait_for_resp("OK", CMD);    
@@ -371,9 +360,9 @@ int GPRS::isCallActive(char *number)
     if(NULL != ( s = strstr(gprsBuffer,"+CPAS:"))) {
       s = s + 7;
       if (*s != '0') {
-         //Hay algo activo (salvo el numero 2 que no sabría entonces
+         //There is something "running" (but number 2 that is unknow)
          if (*s != '2') {
-           //3 o 4, vamos a buscar el numero de la llamada activa
+           //3 or 4, let's go to check for the number
            sim900_send_cmd("AT+CLCC\r\n");
            /*
            AT+CLCC --> 9
@@ -382,16 +371,16 @@ int GPRS::isCallActive(char *number)
            
            OK  
 
-           Sin llamada en curso:
+           Without ringing:
            AT+CLCC
            OK              
            */
 
            sim900_clean_buffer(gprsBuffer,46);
-           sim900_read_buffer(gprsBuffer,45,DEFAULT_TIMEOUT);  //Pongo 45 para que no se tarde una eternidad
+           sim900_read_buffer(gprsBuffer,45);
     //Serial.print("Buffer isCallActive 2: ");Serial.println(gprsBuffer);
            if(NULL != ( s = strstr(gprsBuffer,"+CLCC:"))) {
-             //There is at least ont CALL ACTIVE, get number
+             //There is at least one CALL ACTIVE, get number
              s = strstr((char *)(s),"\"");
              s = s + 1;  //We are in the first phone number character            
              p = strstr((char *)(s),"\""); //p is last character """
@@ -402,7 +391,7 @@ int GPRS::isCallActive(char *number)
                 }
                 number[i] = '\0';            
              }
-             //Tengo todavia mas buffer que leer
+             //I need to read more buffer
              //We are going to flush serial data until OK is recieved
              sim900_wait_for_resp("OK\r\n", CMD); 
              return 0;             
@@ -453,7 +442,7 @@ bool GPRS::join(const __FlashStringHelper *apn, const __FlashStringHelper *userN
     //Select multiple connection
     //sim900_check_with_cmd("AT+CIPMUX=1\r\n","OK",DEFAULT_TIMEOUT,CMD);
 
-    //set APN
+    //set APN. OLD VERSION
 /*    snprintf(cmd,sizeof(cmd),"AT+CSTT=\"%s\",\"%s\",\"%s\"\r\n",_apn,_userName,_passWord);
     sim900_check_with_cmd(cmd, "OK\r\n", DEFAULT_TIMEOUT,CMD);
 */
@@ -626,8 +615,7 @@ int GPRS::send(const char * str, int len)
 int GPRS::recv(char* buf, int len)
 {
     sim900_clean_buffer(buf,len);
-    sim900_read_buffer(buf,len,DEFAULT_TIMEOUT); //Ya he llamado a la funcion con la longitud del buffer - 1 y luego le estoy añadiendo el 0
-
+    sim900_read_buffer(buf,len); //Ya he llamado a la funcion con la longitud del buffer - 1 y luego le estoy añadiendo el 0
     return strlen(buf);
 }
 

@@ -12,13 +12,13 @@
 
 char http_cmd[] = "GET /media/uploads/mbed_official/hello.txt HTTP/1.0\r\n\r\n";
 char buffer[512];
-GPRS gprs(PIN_TX, PIN_RX, BAUDRATE,"cmnet");
+GPRS gprs(PIN_TX, PIN_RX, BAUDRATE);
 void setup(){
   Serial.begin(9600);
   // use DHCP
   gprs.init();
   // attempt DHCP
-  while(false == gprs.join()) {
+  while(false == gprs.join(F("cmnet"))) {
       Serial.println("gprs join network error");
       delay(2000);
   }

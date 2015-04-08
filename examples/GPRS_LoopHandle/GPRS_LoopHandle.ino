@@ -17,6 +17,8 @@ by lawliet.zou(lawliet.zou@gmail.com)
 #define PIN_RX    8
 #define BAUDRATE  9600
 
+#define MESSAGE_LENGTH 20
+
 char gprsBuffer[64];
 int i = 0;
 char *s = NULL;
