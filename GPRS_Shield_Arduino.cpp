@@ -109,6 +109,17 @@ int GPRS::checkSIMStatus(void)
     return 0;
 }
 
+String GPRS::getImei(){
+    char buf[32];
+    String imei(NULL);
+    sim900_send_cmd("AT+GSN\r\n");
+    sim900_read_buffer(buf,sizeof(buf),DEFAULT_TIMEOUT);
+    String response(buf);
+    if(strstr(buf,"OK") != NULL)
+        imei = response.substring(10, 25);
+    return imei;
+};
+
 
 
 int GPRS::sendSMS(char *number, char *data)
