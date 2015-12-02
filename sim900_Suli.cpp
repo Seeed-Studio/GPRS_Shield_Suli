@@ -55,7 +55,7 @@ int sim900_wait_readable (int wait_time)
     int dataLen = 0;
     timerStart = suli_millis();
     //timerEnd = 1000*wait_time + timerStart;
-    while((unsigned long) (suli_millis() - timerStart) > wait_time * 1000UL) {
+    while((unsigned long) (suli_millis() - timerStart) < wait_time * 1000UL) {
         suli_delay_ms(500);
         dataLen = suli_uart_readable(serialSIM900,-1);
         if(dataLen > 0){
