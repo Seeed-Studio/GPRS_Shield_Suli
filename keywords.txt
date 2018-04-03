@@ -1,0 +1,30 @@
+  
+#######################################
+# Syntax Coloring Map For GPRS Shield Suli
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+init	KEYWORD2
+checkPowerUp	KEYWORD2
+powerUpDown	KEYWORD2
+sendSMS	KEYWORD2
+isSMSunread	KEYWORD2
+readSMS	KEYWORD2
+readSMS	KEYWORD2
+deleteSMS	KEYWORD2
+callUp	KEYWORD2
+disableCLIPring	KEYWORD2
+isCallActive	KEYWORD2
+answer	KEYWORD2
+hangup	KEYWORD2
+getDateTime	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
