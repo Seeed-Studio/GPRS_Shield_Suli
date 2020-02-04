@@ -1,4 +1,4 @@
-## GPRS Shield Suli
+## GPRS Shield Suli  [![Build Status](https://travis-ci.com/Seeed-Studio/GPRS_Shield_Suli.svg?branch=master)](https://travis-ci.com/Seeed-Studio/GPRS_Shield_Suli)
 
 ![](https://statics3.seeedstudio.com/images/product/113030009%201.jpg)
 
